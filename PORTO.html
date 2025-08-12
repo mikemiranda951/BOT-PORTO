@@ -1,21 +1,22 @@
-<!doctype html>
 <html>
-  <head><meta charset="utf-8"><title>Teste do Chat</title></head>
-  <body>
-    <h1>Teste do Chat 1</h1>
-    <script>
-      function initEmbeddedMessaging() {
-        try {
-          embeddedservice_bootstrap.settings.language = 'pt_BR';
-          embeddedservice_bootstrap.init(
-            '00D89000003wDSz',
-            'ChatPortoItapoa',
-            'https://portoitapoa--qaporto.sandbox.my.site.com/ESWChatPortoItapoa1751396302034',
-            { scrt2URL: 'https://portoitapoa--qaporto.sandbox.my.salesforce-scrt.com' }
-          );
-        } catch (err) { console.error('Error loading Embedded Messaging: ', err); }
-      }
-    </script>
-    <script src="https://portoitapoa--qaporto.sandbox.my.site.com/ESWChatPortoItapoa1751396302034/assets/js/bootstrap.min.js" onload="initEmbeddedMessaging()"></script>
-  </body>
+ <script type='text/javascript'>
+	function initEmbeddedMessaging() {
+		try {
+			embeddedservice_bootstrap.settings.language = 'pt_BR'; // For example, enter 'en' or 'en-US'
+
+			embeddedservice_bootstrap.init(
+				'00D89000003wDSz',
+				'ChatPortoItapoa',
+				'https://portoitapoa--qaporto.sandbox.my.site.com/ESWChatPortoItapoa1751396302034',
+				{
+					scrt2URL: 'https://portoitapoa--qaporto.sandbox.my.salesforce-scrt.com'
+				}
+			);
+		} catch (err) {
+			console.error('Error loading Embedded Messaging: ', err);
+		}
+	};
+</script>
+<script type='text/javascript' src='https://portoitapoa--qaporto.sandbox.my.site.com/ESWChatPortoItapoa1751396302034/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
+
 </html>
