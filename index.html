@@ -3,32 +3,95 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Teste Embedded Messaging</title>
+  <title>Diagnóstico Embedded Messaging</title>
+  <style>
+    body { font: 14px/1.4 system-ui, Arial, sans-serif; padding: 16px; }
+    .ok { color: #0a7; } .err { color: #c00; } .muted { color:#666; }
+    pre { background:#f6f8fa; padding:12px; border-radius:8px; overflow:auto; }
+    button { padding:8px 12px; }
+  </style>
 </head>
 <body>
-  <h1>Teste Chat Porto Itapoá</h1>
+  <h1>Diagnóstico Embedded Messaging</h1>
+  <div id="log" class="muted">Iniciando…</div>
+  <p><button id="abrir">Abrir/Toggle Chat</button></p>
 
   <script>
+    // >>> CONFIRA SE ESTE ENDPOINT É EXATAMENTE O QUE O DEPLOYMENT MOSTRA (Get Code)
+    const ENDPOINT = "https://portoitapoa--qaporto.sandbox.my.site.com/ESW_ChatPortoitapoa_17513963020341";
+    const BOOTSTRAP = ENDPOINT + "/assets/js/bootstrap.min.js";
+    const ORG_ID = "00D89000003wDSz";
+    const DEPLOYMENT_NAME = "ChatPortoItapoa";
+    const SCRT2 = "https://portoitapoa--qaporto.sandbox.my.salesforce-scrt.com";
+
+    const $log = document.getElementById("log");
+    const log = (msg, cls="") => {
+      const line = document.createElement("div");
+      if (cls) line.className = cls;
+      line.textContent = msg;
+      $log.appendChild(line);
+      console.log(msg);
+    };
+
     function initEmbeddedMessaging() {
       try {
-        embeddedservice_bootstrap.settings.language = 'pt_BR';
-        embeddedservice_bootstrap.init(
-          '00D89000003wDSz',
-          'ChatPortoItapoa',
-          'https://portoitapoa--qaporto.sandbox.my.site.com/ESW_ChatPortoitapoa_17513963020341',
-          { scrt2URL: 'https://portoitapoa--qaporto.sandbox.my.salesforce-scrt.com' }
-        );
-      } catch (err) {
-        console.error('Error loading Embedded Messaging: ', err);
+        embeddedservice_bootstrap.settings.language = "pt_BR";
+        embeddedservice_bootstrap.init(ORG_ID, DEPLOYMENT_NAME, ENDPOINT, { scrt2URL: SCRT2 });
+        log("init() chamado com sucesso.", "ok");
+      } catch (e) {
+        log("Falha no init(): " + e.message, "err");
+        console.error(e);
       }
     }
-  </script>
 
-  <script
-    type="text/javascript"
-    src="https://portoitapoa--qaporto.sandbox.my.site.com/ESW_ChatPortoitapoa_17513963020341/assets/js/bootstrap.min.js"
-    onload="initEmbeddedMessaging()">
+    // 1) Validar carregamento do bootstrap e tipo de conteúdo
+    async function checkBootstrap() {
+      log("Carregando bootstrap: " + BOOTSTRAP);
+      try {
+        const res = await fetch(BOOTSTRAP, { mode: "cors" });
+        log(`HTTP ${res.status} ${res.statusText}`);
+        const ctype = res.headers.get("content-type") || "";
+        log("Content-Type: " + ctype);
+        if (!res.ok) {
+          log("ERRO: bootstrap não retornou 200. Verifique o endpoint.", "err");
+        }
+        if (!ctype.includes("javascript")) {
+          log("ERRO: bootstrap NÃO é JS (provavelmente HTML de login/erro). Endpoint errado/desatualizado OU domínio não liberado.", "err");
+        }
+      } catch (e) {
+        log("Fetch falhou (CORS/CSP ou URL inválida): " + e.message, "err");
+      }
+    }
+
+    // 2) Injetar <script> e verificar global
+    function injectAndInit() {
+      const s = document.createElement("script");
+      s.src = BOOTSTRAP;
+      s.async = true;
+      s.onload = () => {
+        log("bootstrap onload. embeddedservice_bootstrap existe? " + !!window.embeddedservice_bootstrap, !!window.embeddedservice_bootstrap ? "ok" : "err");
+        if (window.embeddedservice_bootstrap) initEmbeddedMessaging();
+        else log("Global ausente: endpoint costuma estar errado/desatualizado.", "err");
+      };
+      s.onerror = () => log("Falha ao carregar <script> bootstrap (CSP/CORS/URL).", "err");
+      document.head.appendChild(s);
+    }
+
+    document.getElementById("abrir").addEventListener("click", () => {
+      if (window.embeddedservice_bootstrap?.settings) {
+        embeddedservice_bootstrap.toggleChat();
+      } else {
+        log("Global ainda não existe; reinjetando bootstrap…");
+        injectAndInit();
+      }
+    });
+
+    (async function run() {
+      await checkBootstrap();      // vê status e content-type
+      injectAndInit();             // injeta script e tenta iniciar
+      log("Dica: abra DevTools > Network e confira 'bootstrap.min.js' → deve ser 200 + application/javascript.");
+      log("Se der 200 + text/html: endpoint do deployment está diferente do código OU o domínio não está no Allowlist/CSP/CORS.", "muted");
+    })();
   </script>
 </body>
-  
 </html>
