@@ -1,56 +1,21 @@
 <html lang="pt-br">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Teste Embedded Messaging</title>
-</head>
-<body>
-  <button id="abrir">Abrir Chat</button>
+<script type='text/javascript'>
+	function initEmbeddedMessaging() {
+		try {
+			embeddedservice_bootstrap.settings.language = 'pt_BR'; // For example, enter 'en' or 'en-US'
 
-  <script>
-    const ESW_URL = "https://portoitapoa--qaporto.sandbox.my.site.com/ESWChatPortoItapoa1751396302034/assets/js/bootstrap.min.js";
-
-    function initEmbeddedMessaging() {
-      embeddedservice_bootstrap.settings.language = "pt_BR";
-      embeddedservice_bootstrap.init(
-        "00D89000003wDSz",
-        "ChatPortoItapoa",
-        "https://portoitapoa--qaporto.sandbox.my.site.com/ESWChatPortoItapoa1751396302034",
-        { scrt2URL: "https://portoitapoa--qaporto.sandbox.my.salesforce-scrt.com" }
-      );
-      console.log("ESW: init chamado");
-    }
-
-    function loadESWAndInit() {
-      // Se já carregou, só reabre
-      if (window.embeddedservice_bootstrap) {
-        initEmbeddedMessaging();
-        return;
-      }
-
-      // Injeta o script e só depois inicializa
-      const s = document.createElement("script");
-      s.src = ESW_URL;
-      s.async = true;
-      s.onload = () => {
-        if (!window.embeddedservice_bootstrap) {
-          console.error("ESW carregado, mas embeddedservice_bootstrap ausente.");
-          return;
-        }
-        initEmbeddedMessaging();
-      };
-      s.onerror = () => console.error("Falha ao carregar:", ESW_URL);
-      document.head.appendChild(s);
-    }
-
-    document.getElementById("abrir").addEventListener("click", () => {
-      // Se já estiver carregado, só abre/fecha
-      if (window.embeddedservice_bootstrap?.settings) {
-        embeddedservice_bootstrap.toggleChat();
-      } else {
-        loadESWAndInit();
-      }
-    });
-  </script>
-</body>
+			embeddedservice_bootstrap.init(
+				'00D89000003wDSz',
+				'ChatPortoItapoa',
+				'https://portoitapoa--qaporto.sandbox.my.site.com/ESWChatPortoItapoa1751396302034',
+				{
+					scrt2URL: 'https://portoitapoa--qaporto.sandbox.my.salesforce-scrt.com'
+				}
+			);
+		} catch (err) {
+			console.error('Error loading Embedded Messaging: ', err);
+		}
+	};
+</script>
+<script type='text/javascript' src='https://portoitapoa--qaporto.sandbox.my.site.com/ESWChatPortoItapoa1751396302034/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
 </html>
