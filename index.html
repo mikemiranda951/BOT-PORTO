@@ -1,21 +1,30 @@
 <html>
-<script type='text/javascript'>
-	function initEmbeddedMessaging() {
-		try {
-			embeddedservice_bootstrap.settings.language = 'pt_BR';
+<html lang="pt-br">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teste Chat</title></head>
+<body>
+  <button id="abrir">Abrir Chat</button>
 
-			embeddedservice_bootstrap.init(
-				'00D89000003wDSz',
-				'ChatPortoItapoa',
-				'https://portoitapoa--qaporto.sandbox.my.site.com/ESWChatPortoItapoa1751396302034',
-				{
-					scrt2URL: 'https://portoitapoa--qaporto.sandbox.my.salesforce-scrt.com'
-				}
-			);
-		} catch (err) {
-			console.error('Error loading Embedded Messaging: ', err);
-		}
-	};
-</script>
-<script type='text/javascript' src='https://portoitapoa--qaporto.sandbox.my.site.com/ESWChatPortoItapoa1751396302034/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
+  <script>
+    function initEmbeddedMessaging() {
+      try {
+        embeddedservice_bootstrap.settings.language = 'pt_BR';
+        embeddedservice_bootstrap.init(
+          '00D89000003wDSz',
+          'ChatPortoItapoa',
+          'https://portoitapoa--qaporto.sandbox.my.site.com/ESWChatPortoItapoa1751396302034',
+          { scrt2URL: 'https://portoitapoa--qaporto.sandbox.my.salesforce-scrt.com' }
+        );
+      } catch(e){ console.error(e); }
+    }
+    document.getElementById('abrir').addEventListener('click', () => {
+      if (window.embeddedservice_bootstrap?.settings) embeddedservice_bootstrap.toggleChat();
+      else initEmbeddedMessaging();
+    });
+  </script>
+
+  <script type="text/javascript"
+    src="https://portoitapoa--qaporto.sandbox.my.site.com/ESWChatPortoItapoa1751396302034/assets/js/bootstrap.min.js"
+    onload="console.log('bootstrap carregado')"></script>
+</body>
+</html>
 </html>
