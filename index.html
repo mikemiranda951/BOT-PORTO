@@ -1,21 +1,51 @@
+<!doctype html>
 <html lang="pt-br">
-<script type='text/javascript'>
-	function initEmbeddedMessaging() {
-		try {
-			embeddedservice_bootstrap.settings.language = 'pt_BR'; // For example, enter 'en' or 'en-US'
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Teste Embedded Messaging</title>
+</head>
+<body>
+  <button id="abrir">Abrir Chat</button>
 
-			embeddedservice_bootstrap.init(
-				'00D89000003wDSz',
-				'ChatPortoItapoa',
-				'https://portoitapoa--qaporto.sandbox.my.site.com/ESWChatPortoItapoa1751396302034',
-				{
-					scrt2URL: 'https://portoitapoa--qaporto.sandbox.my.salesforce-scrt.com'
-				}
-			);
-		} catch (err) {
-			console.error('Error loading Embedded Messaging: ', err);
-		}
-	};
-</script>
-<script type='text/javascript' src='https://portoitapoa--qaporto.sandbox.my.site.com/ESWChatPortoItapoa1751396302034/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
+  <script>
+    // >>>>> COPIE a URL EXATA de Setup > Messaging for In-App & Web > Deployments > ChatPortoItapoa > Get Code
+    const ESW_BOOTSTRAP_URL = "https://portoitapoa--qaporto.sandbox.my.site.com/ESWChatPortoItapoa1751396302034/assets/js/bootstrap.min.js";
+
+    function initEmbeddedMessaging() {
+      try {
+        embeddedservice_bootstrap.settings.language = "pt_BR";
+        embeddedservice_bootstrap.init(
+          "00D89000003wDSz",
+          "ChatPortoItapoa",
+          "https://portoitapoa--qaporto.sandbox.my.site.com/ESWChatPortoItapoa1751396302034",
+          { scrt2URL: "https://portoitapoa--qaporto.sandbox.my.salesforce-scrt.com" }
+        );
+        console.log("Messaging: init chamado");
+      } catch (err) {
+        console.error("Messaging: erro no init", err);
+      }
+    }
+
+    function loadBootstrapAndInit() {
+      if (window.embeddedservice_bootstrap) return initEmbeddedMessaging();
+
+      const s = document.createElement("script");
+      s.src = ESW_BOOTSTRAP_URL;
+      s.async = true;
+      s.onload = () => {
+        console.log("bootstrap onload; global existe?", !!window.embeddedservice_bootstrap);
+        if (window.embeddedservice_bootstrap) initEmbeddedMessaging();
+        else console.error("bootstrap carregou mas NÃO definiu embeddedservice_bootstrap (URL do deployment pode estar desatualizada ou retornou HTML).");
+      };
+      s.onerror = () => console.error("Falha ao carregar:", ESW_BOOTSTRAP_URL);
+      document.head.appendChild(s);
+    }
+
+    document.getElementById("abrir").addEventListener("click", () => {
+      if (window.embeddedservice_bootstrap?.settings) embeddedservice_bootstrap.toggleChat();
+      else loadBootstrapAndInit();
+    });
+  </script>
+</body>
 </html>
